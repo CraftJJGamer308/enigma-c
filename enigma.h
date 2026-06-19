@@ -18,7 +18,7 @@ typedef struct {
     Walze w3;
     Walze w2;
     Walze w1;
-    Walze w_beta;
+    Walze grw;
     Walze ukw;
 } Enigma;
 
@@ -34,10 +34,10 @@ extern const char w_Gamma      [27];
 // Enigma-Initialisierung
 Enigma enigma_init(
     const char* lut_w1,  const char* lut_w2,  const char* lut_w3,
-    const char* lut_w_beta,
+    const char* lut_grw,
     const char* lut_ukw,
-    int pos_w1,  int pos_w2,  int pos_w3,  int pos_w_beta,
-    int ring_w1, int ring_w2, int ring_w3, int ring_w_beta
+    int pos_w1,  int pos_w2,  int pos_w3,  int pos_grw,
+    int ring_w1, int ring_w2, int ring_w3, int ring_grw
 );
 
 void enigma_print_conf(Enigma e);

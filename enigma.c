@@ -63,16 +63,16 @@ static Walze walze_init(const char* lut, int pos, int ring) {
 // Enigma-Initialisierung
 Enigma enigma_init(
     const char* lut_w1,  const char* lut_w2,  const char* lut_w3,
-    const char* lut_w_beta,
+    const char* lut_grw,
     const char* lut_ukw,
-    int pos_w1,  int pos_w2,  int pos_w3,  int pos_w_beta,
-    int ring_w1, int ring_w2, int ring_w3, int ring_w_beta
+    int pos_w1,  int pos_w2,  int pos_w3,  int pos_grw,
+    int ring_w1, int ring_w2, int ring_w3, int ring_grw
 ) {
     Enigma e;
     e.w1     = walze_init(lut_w1,  pos_w1,  ring_w1);
     e.w2     = walze_init(lut_w2,  pos_w2,  ring_w2);
     e.w3     = walze_init(lut_w3,  pos_w3,  ring_w3);
-    e.w_beta = walze_init(lut_w_beta, pos_w_beta, ring_w_beta);
+    e.grw = walze_init(lut_grw, pos_grw, ring_grw);
     e.ukw    = walze_init(lut_ukw, 0, 0);
     return e;
 }
@@ -92,7 +92,7 @@ void enigma_print_conf(Enigma e) {
     printf("W1:\t"); print_conf(e.w1, 0);
     printf("W2:\t"); print_conf(e.w2, 0);
     printf("W3:\t"); print_conf(e.w3, 0);
-    printf("GrW:\t"); print_conf(e.w_beta, 0);
+    printf("GrW:\t"); print_conf(e.grw, 0);
     printf("UKW:\t"); print_conf(e.ukw, 1);
 }
 
@@ -106,13 +106,13 @@ char enigma_encrypt(Enigma* e, char in) {
     x = walze_output_vw(e->w3, x);
     x = walze_output_vw(e->w2, x);
     x = walze_output_vw(e->w1, x);
-    x = walze_output_vw(e->w_beta, x);
+    x = walze_output_vw(e->grw, x);
 
     // UKW
     x = walze_output_ukw(e->ukw, x);
 
     // Rückwärtspfad
-    x = walze_output_rw(e->w_beta, x);
+    x = walze_output_rw(e->grw, x);
     x = walze_output_rw(e->w1, x);
     x = walze_output_rw(e->w2, x);
     x = walze_output_rw(e->w3, x);
