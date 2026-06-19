@@ -11,9 +11,4 @@ int mod_26(int b) {
     int temp = b % 26;
     return (temp < 0) ? temp + 26 : temp;
 }
-
-static inline void inc_mod_26(int* a) {
-    *a = (*a == 25) ? 0 : *a + 1;
-}
-
 #endif

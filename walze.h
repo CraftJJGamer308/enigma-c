@@ -25,17 +25,21 @@ static inline int in_notch(Walze* a) {
     return (a->pos+'A' == 'Z' || a->pos+'A' == 'M');
 }
 
+static inline void pos_inc(Walze* w) {
+    w->pos = (w->pos == 25) ? 0 : w->pos + 1;
+}
+
 void update_pos(Walze* w1, Walze* w2, Walze* w3) {
     // printf(": %c %c %c\n", w1->pos+'A', w2->pos+'A', w3->pos+'A');
     
     int notch_w3 = in_notch(w3);
     int notch_w2 = in_notch(w2);
 
-    inc_mod_26(&(w3->pos));
+    pos_inc(w3);
     if (notch_w3 || notch_w2)
-        inc_mod_26(&(w2->pos));
+        pos_inc(w2);
     if (notch_w2)
-        inc_mod_26(&(w1->pos));
+        pos_inc(w1);
 }
 
 char walze_output_vw(Walze w, char in) {
