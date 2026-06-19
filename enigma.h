@@ -1,0 +1,46 @@
+#ifndef WALZE_H
+#define WALZE_H
+#include <stdio.h>
+#include "utility.h"
+
+// typedef int letter_t;
+
+// Walze Datentyp
+typedef struct {
+    char lut[27];
+    char lut_inv[27];
+    int pos;
+    int ring;
+} Walze;
+
+// Enigma Datentyp
+typedef struct {
+    Walze w3;
+    Walze w2;
+    Walze w1;
+    Walze w_beta;
+    Walze ukw;
+} Enigma;
+
+// Walzenkonfigurationen
+extern const char w_VI         [27];
+extern const char w_VII 	   [27];
+extern const char w_VIII 	   [27];
+extern const char w_UKW_Bruno  [27];
+extern const char w_UKW_Caesar [27];
+extern const char w_Beta       [27];
+extern const char w_Gamma      [27];
+
+// Enigma-Initialisierung
+Enigma enigma_init(
+    const char* lut_w1,  const char* lut_w2,  const char* lut_w3,
+    const char* lut_w_beta,
+    const char* lut_ukw,
+    int pos_w1,  int pos_w2,  int pos_w3,  int pos_w_beta,
+    int ring_w1, int ring_w2, int ring_w3, int ring_w_beta
+);
+
+void enigma_print_conf(Enigma e);
+char enigma_encrypt(Enigma* e, char in);
+
+#endif
