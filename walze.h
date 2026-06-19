@@ -53,5 +53,14 @@ char walze_output_ukw(Walze w, char in) {
     return w.lut[in] - 'A';
 }
 
+void print_conf(Walze w, int ukw) {
+    printf("%s", w.lut);
+    if (!ukw) {
+        printf(", Pos: %c", w.pos + 'A');
+        printf(", RS: %c \n", w.ring + 'A');
+    } else {
+        printf("\n");
+    }
+}
 
 #endif

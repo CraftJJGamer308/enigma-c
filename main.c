@@ -23,7 +23,15 @@ int main() {
     walze_inv(w_beta.lut, w_beta.lut_inv);
 
     clean_string(text);
-    printf("Eingabe:\t%s\n", text);
+
+    printf("Anfangskonfigurationen:\n");
+    printf("W1:\t"); print_conf(w1, 0);
+    printf("W2:\t"); print_conf(w2, 0);
+    printf("W3:\t"); print_conf(w3, 0);
+    printf("GrW:\t"); print_conf(w_beta, 0);
+    printf("UKW:\t"); print_conf(ukw, 1);
+
+    printf("\nEingabe:\t%s\n", text);
     printf("Ausgabe:\t");
 
     char out;
