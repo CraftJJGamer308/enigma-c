@@ -21,13 +21,15 @@ typedef struct {
 #define w_Gamma      "FSOKANUERHMBTIYCWLQPZXVGJD"
 
 // Notch-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
-#define IN_NOTCH(a)  (a->pos+'A' == 'Z' || a->pos+'A' == 'M')
+static inline int in_notch(Walze* a) {
+    return (a->pos+'A' == 'Z' || a->pos+'A' == 'M');
+}
 
 void update_pos(Walze* w1, Walze* w2, Walze* w3) {
     // printf(": %c %c %c\n", w1->pos+'A', w2->pos+'A', w3->pos+'A');
     
-    int notch_w3 = IN_NOTCH(w3);
-    int notch_w2 = IN_NOTCH(w2);
+    int notch_w3 = in_notch(w3);
+    int notch_w2 = in_notch(w2);
 
     inc_mod_26(&(w3->pos));
     if (notch_w3 || notch_w2)

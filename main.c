@@ -4,7 +4,7 @@
 #include "utility.h"
 
 int main() {
-    char *text = "CRAFTJJIMPERIUM";
+    char *text = "ESLEBEDASCRAFTJJIMPERIUM";
     Walze w1 = {.pos = 0, .ring = 0};
     Walze w2 = {.pos = 0, .ring = 0};
     Walze w3 = {.pos = 0, .ring = 0};
