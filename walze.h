@@ -22,7 +22,6 @@ typedef struct {
 
 // Notch-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
 #define IN_NOTCH(a)  (a->pos+'A' == 'Z' || a->pos+'A' == 'M')
-// #define INC_MOD_26(a) ( a==25 ? a=0 : a++ )
 
 void update_pos(Walze* w1, Walze* w2, Walze* w3) {
     // printf(": %c %c %c\n", w1->pos+'A', w2->pos+'A', w3->pos+'A');

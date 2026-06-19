@@ -23,15 +23,11 @@ int main() {
     walze_inv(w_beta.lut, w_beta.lut_inv);
 
     printf("Eingabe:\t%s\n", text);
-    // printf("Walze 1:\t%s\n", w1.lut);
-    // printf("Walze 1 inv:\t%s\n", w1.lut_inv);
-
     printf("Ausgabe:\t");
 
     char out;
     for (int i = 0; i < strlen(text); i++) {
         update_pos(&w1, &w2, &w3);
-        // Eingang: text[i] von ASCII nach Index
         out = text[i] - 'A';
 
         // Vorwärtspfad

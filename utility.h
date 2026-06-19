@@ -2,9 +2,9 @@
 #define UTILITY_H
 
 void walze_inv(char* in, char* out) {
-    for(int i = 0; i < 26; i++)   // int statt char, 0..25
+    for(int i = 0; i < 26; i++)
         out[in[i] - 'A'] = i + 'A';
-    out[26] = '\0';                // Null-Terminator explizit setzen
+    out[26] = '\0';
 }
 
 int mod_26(int b) {
