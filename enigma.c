@@ -13,15 +13,15 @@ const char w_Gamma      [27] = "FSOKANUERHMBTIYCWLQPZXVGJD";
 ///////////// WALZEN /////////////
 
 // Walzen-Initialisierung
-static void walze_inv(char* in, char* out) {
+static void walze_inv(letter_t* in, letter_t* out) {
     for(int i = 0; i < 26; i++)
-        out[in[i] - 'A'] = i + 'A';
-    out[26] = '\0';
+        out[in[i]] = i;
 }
 static Walze walze_init(const char* lut, int pos, int ring) {
     Walze w;
-    strncpy(w.lut, lut, 26);
-    w.lut[26] = '\0';
+    for (int i = 0; i < 26; i++) 
+        w.lut[i] = (letter_t) lut[i] - 'A';
+
     walze_inv(w.lut, w.lut_inv);
     w.pos = mod_26(pos);
     w.ring = mod_26(ring);
@@ -49,22 +49,25 @@ static void update_pos(Enigma* e) {
 }
 
 // Walzen-Ausgang
-static inline char walze_output_vw(Walze *w, char in) {
-    return mod_26(w->lut[mod_26(in + w->pos - w->ring)] - 'A' - w->pos + w->ring);
+static inline letter_t walze_output_vw(Walze *w, letter_t in) {
+    return mod_26(w->lut[mod_26(in + w->pos - w->ring)] - w->pos + w->ring);
 }
-static inline char walze_output_rw(Walze *w, char in) {
-    return mod_26(w->lut_inv[mod_26(in + w->pos - w->ring)] - 'A' - w->pos + w->ring);
+static inline letter_t walze_output_rw(Walze *w, letter_t in) {
+    return mod_26(w->lut_inv[mod_26(in + w->pos - w->ring)] - w->pos + w->ring);
 }
-static inline char walze_output_ukw(Walze *w, char in) {
-    return w->lut[in] - 'A';
+static inline letter_t walze_output_ukw(Walze *w, letter_t in) {
+    return w->lut[in];
 }
 
 // Walzenkonfiguration ausgeben
 static void print_conf(Walze* w, int ukw) {
-    printf("%s", w->lut);
+    letter_t* p = w->lut;
+    for (int i = 0; i < 26; i++)
+        putchar((char) *p++ + 'A');
+
     if (!ukw) {
-        printf(", Pos: %c", w->pos + 'A');
-        printf(", RS: %c \n", w->ring + 'A');
+        printf(", Pos: %c", (char) w->pos + 'A');
+        printf(", RS: %c\n", (char) w->ring + 'A');
     } else {
         printf("\n");
     }
@@ -102,7 +105,7 @@ void enigma_print_conf(Enigma* e) {
 char enigma_encrypt(Enigma* e, char in) {
     update_pos(e);
 
-    char x = in - 'A';
+    letter_t x = (letter_t) in - 'A';
 
     // Vorwärtspfad
     x = walze_output_vw(&e->w3, x);
@@ -119,5 +122,5 @@ char enigma_encrypt(Enigma* e, char in) {
     x = walze_output_rw(&e->w2, x);
     x = walze_output_rw(&e->w3, x);
 
-    return x + 'A';
+    return (char) x + 'A';
 }

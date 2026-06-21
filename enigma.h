@@ -1,16 +1,18 @@
 #ifndef WALZE_H
 #define WALZE_H
 #include <stdio.h>
+#include <stdint.h>
 #include "utility.h"
 
-// typedef int letter_t;
+// letter_t: interner Datentyp für Buchstaben. A - Z <=> 0 - 25
+typedef uint8_t letter_t;
 
 // Walze Datentyp
 typedef struct {
-    char lut[27];
-    char lut_inv[27];
-    int pos;
-    int ring;
+    letter_t lut[26];
+    letter_t lut_inv[26];
+    letter_t pos;
+    letter_t ring;
 } Walze;
 
 // Enigma Datentyp
