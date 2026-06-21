@@ -15,40 +15,37 @@ static inline int in_notch(Walze* w) {
     // Notch-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
     return (w->pos+'A' == 'Z' || w->pos+'A' == 'M');
 }
-
 static inline void pos_inc(Walze* w) {
     w->pos = (w->pos == 25) ? 0 : w->pos + 1;
 }
+static void update_pos(Enigma* e) {
+    int notch_w3 = in_notch(&e->w3);
+    int notch_w2 = in_notch(&e->w2);
+    
+    pos_inc(&e->w3);
+    if (notch_w3 || notch_w2)
+    pos_inc(&e->w2);
+    if (notch_w2)
+    pos_inc(&e->w1);
+}
 
+// Walzen-Ausgang
+static inline char walze_output_vw(Walze w, char in) {
+    return mod_26(w.lut[mod_26(in + w.pos - w.ring)] - 'A' - w.pos + w.ring);
+}
+static inline char walze_output_rw(Walze w, char in) {
+    return mod_26(w.lut_inv[mod_26(in + w.pos - w.ring)] - 'A' - w.pos + w.ring);
+}
+static inline char walze_output_ukw(Walze w, char in) {
+    return w.lut[in] - 'A';
+}
+
+// Walzen-Initialisierung
 static inline void walze_inv(char* in, char* out) {
     for(int i = 0; i < 26; i++)
         out[in[i] - 'A'] = i + 'A';
     out[26] = '\0';
 }
-
-static void update_pos(Enigma* e) {
-    int notch_w3 = in_notch(&e->w3);
-    int notch_w2 = in_notch(&e->w2);
-
-    pos_inc(&e->w3);
-    if (notch_w3 || notch_w2)
-        pos_inc(&e->w2);
-    if (notch_w2)
-        pos_inc(&e->w1);
-}
-
-// Walzen-Ausgang
-static char walze_output_vw(Walze w, char in) {
-    return mod_26(w.lut[mod_26(in + w.pos - w.ring)] - 'A' - w.pos + w.ring);
-}
-static char walze_output_rw(Walze w, char in) {
-    return mod_26(w.lut_inv[mod_26(in + w.pos - w.ring)] - 'A' - w.pos + w.ring);
-}
-static char walze_output_ukw(Walze w, char in) {
-    return w.lut[in] - 'A';
-}
-
-// Walzen-Initialisierung
 static Walze walze_init(const char* lut, int pos, int ring) {
     Walze w;
     strncpy(w.lut, lut, 26);
@@ -72,7 +69,7 @@ Enigma enigma_init(
     e.w1     = walze_init(lut_w1,  pos_w1,  ring_w1);
     e.w2     = walze_init(lut_w2,  pos_w2,  ring_w2);
     e.w3     = walze_init(lut_w3,  pos_w3,  ring_w3);
-    e.grw = walze_init(lut_grw, pos_grw, ring_grw);
+    e.grw    = walze_init(lut_grw, pos_grw, ring_grw);
     e.ukw    = walze_init(lut_ukw, 0, 0);
     return e;
 }
@@ -87,7 +84,6 @@ static void print_conf(Walze w, int ukw) {
         printf("\n");
     }
 }
-
 void enigma_print_conf(Enigma e) {
     printf("W1:\t"); print_conf(e.w1, 0);
     printf("W2:\t"); print_conf(e.w2, 0);
