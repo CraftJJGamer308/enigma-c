@@ -10,6 +10,25 @@ const char w_UKW_Caesar [27] = "RDOBJNTKVEHMLFCWZAXGYIPSUQ";
 const char w_Beta       [27] = "LEYJVCNIXWPBQMDRTAKZGFUHOS";
 const char w_Gamma      [27] = "FSOKANUERHMBTIYCWLQPZXVGJD";
 
+///////////// WALZEN /////////////
+
+// Walzen-Initialisierung
+static void walze_inv(char* in, char* out) {
+    for(int i = 0; i < 26; i++)
+        out[in[i] - 'A'] = i + 'A';
+    out[26] = '\0';
+}
+static Walze walze_init(const char* lut, int pos, int ring) {
+    Walze w;
+    strncpy(w.lut, lut, 26);
+    w.lut[26] = '\0';
+    walze_inv(w.lut, w.lut_inv);
+    w.pos = mod_26(pos);
+    w.ring = mod_26(ring);
+
+    return w;
+}
+
 // Walzenstellung aktualisieren
 static inline int in_notch(Walze* w) {
     // Notch-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
@@ -24,38 +43,34 @@ static void update_pos(Enigma* e) {
     
     pos_inc(&e->w3);
     if (notch_w3 || notch_w2)
-    pos_inc(&e->w2);
+        pos_inc(&e->w2);
     if (notch_w2)
-    pos_inc(&e->w1);
+        pos_inc(&e->w1);
 }
 
 // Walzen-Ausgang
-static inline char walze_output_vw(Walze w, char in) {
-    return mod_26(w.lut[mod_26(in + w.pos - w.ring)] - 'A' - w.pos + w.ring);
+static inline char walze_output_vw(Walze *w, char in) {
+    return mod_26(w->lut[mod_26(in + w->pos - w->ring)] - 'A' - w->pos + w->ring);
 }
-static inline char walze_output_rw(Walze w, char in) {
-    return mod_26(w.lut_inv[mod_26(in + w.pos - w.ring)] - 'A' - w.pos + w.ring);
+static inline char walze_output_rw(Walze *w, char in) {
+    return mod_26(w->lut_inv[mod_26(in + w->pos - w->ring)] - 'A' - w->pos + w->ring);
 }
-static inline char walze_output_ukw(Walze w, char in) {
-    return w.lut[in] - 'A';
+static inline char walze_output_ukw(Walze *w, char in) {
+    return w->lut[in] - 'A';
 }
 
-// Walzen-Initialisierung
-static inline void walze_inv(char* in, char* out) {
-    for(int i = 0; i < 26; i++)
-        out[in[i] - 'A'] = i + 'A';
-    out[26] = '\0';
+// Walzenkonfiguration ausgeben
+static void print_conf(Walze* w, int ukw) {
+    printf("%s", w->lut);
+    if (!ukw) {
+        printf(", Pos: %c", w->pos + 'A');
+        printf(", RS: %c \n", w->ring + 'A');
+    } else {
+        printf("\n");
+    }
 }
-static Walze walze_init(const char* lut, int pos, int ring) {
-    Walze w;
-    strncpy(w.lut, lut, 26);
-    w.lut[26] = '\0';
-    walze_inv(w.lut, w.lut_inv);
-    w.pos = pos;
-    w.ring = ring;
 
-    return w;
-}
+///////////// ENIGMA /////////////
 
 // Enigma-Initialisierung
 Enigma enigma_init(
@@ -74,44 +89,35 @@ Enigma enigma_init(
     return e;
 }
 
-// Walzenkonfiguration ausgeben
-static void print_conf(Walze w, int ukw) {
-    printf("%s", w.lut);
-    if (!ukw) {
-        printf(", Pos: %c", w.pos + 'A');
-        printf(", RS: %c \n", w.ring + 'A');
-    } else {
-        printf("\n");
-    }
-}
-void enigma_print_conf(Enigma e) {
-    printf("W1:\t"); print_conf(e.w1, 0);
-    printf("W2:\t"); print_conf(e.w2, 0);
-    printf("W3:\t"); print_conf(e.w3, 0);
-    printf("GrW:\t"); print_conf(e.grw, 0);
-    printf("UKW:\t"); print_conf(e.ukw, 1);
+// Gesamt-Konfiguration ausgeben
+void enigma_print_conf(Enigma* e) {
+    printf("W1:\t");    print_conf(&e->w1, 0);
+    printf("W2:\t");    print_conf(&e->w2, 0);
+    printf("W3:\t");    print_conf(&e->w3, 0);
+    printf("GrW:\t");   print_conf(&e->grw, 0);
+    printf("UKW:\t");   print_conf(&e->ukw, 1);
 }
 
-// Verschluesselung
+// Verschlüsselung
 char enigma_encrypt(Enigma* e, char in) {
     update_pos(e);
 
     char x = in - 'A';
 
     // Vorwärtspfad
-    x = walze_output_vw(e->w3, x);
-    x = walze_output_vw(e->w2, x);
-    x = walze_output_vw(e->w1, x);
-    x = walze_output_vw(e->grw, x);
+    x = walze_output_vw(&e->w3, x);
+    x = walze_output_vw(&e->w2, x);
+    x = walze_output_vw(&e->w1, x);
+    x = walze_output_vw(&e->grw, x);
 
     // UKW
-    x = walze_output_ukw(e->ukw, x);
+    x = walze_output_ukw(&e->ukw, x);
 
     // Rückwärtspfad
-    x = walze_output_rw(e->grw, x);
-    x = walze_output_rw(e->w1, x);
-    x = walze_output_rw(e->w2, x);
-    x = walze_output_rw(e->w3, x);
+    x = walze_output_rw(&e->grw, x);
+    x = walze_output_rw(&e->w1, x);
+    x = walze_output_rw(&e->w2, x);
+    x = walze_output_rw(&e->w3, x);
 
     return x + 'A';
 }

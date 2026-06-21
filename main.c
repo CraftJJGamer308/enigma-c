@@ -17,7 +17,7 @@ int main() {
     // Anfangswalzenkonfigurationen ausgeben
     printf("\nAnfangskonfigurationen\n");
     printf("======================\n");
-    enigma_print_conf(e);
+    enigma_print_conf(&e);
 
     // Ergebnisse ausgeben
     printf("\nVer- und Entschluesselung\n");
@@ -26,9 +26,8 @@ int main() {
     printf("Eingabe:\t%s\n", text);
     printf("Ausgabe:\t");
 
-    char out;
-    for (int i = 0; i < strlen(text); i++) {
-        printf("%c", enigma_encrypt(&e, text[i]));
+    for (char *p = text; *p; p++) {
+        putchar(enigma_encrypt(&e, *p));
     }
 
     return 0;

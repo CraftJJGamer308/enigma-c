@@ -40,7 +40,7 @@ Enigma enigma_init(
     int ring_w1, int ring_w2, int ring_w3, int ring_grw
 );
 
-void enigma_print_conf(Enigma e);
+void enigma_print_conf(Enigma* e);
 char enigma_encrypt(Enigma* e, char in);
 
 #endif
