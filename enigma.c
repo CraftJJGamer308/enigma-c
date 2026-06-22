@@ -2,6 +2,17 @@
 #include "enigma.h"
 #include "utility.h"
 
+///////////// UMRECHNUNG /////////////
+
+inline static letter_t to_letter(char c) {
+    return (letter_t) c - 'A';
+}
+inline static char to_char(letter_t l) {
+    return (char) l + 'A';
+}
+
+///////////// WALZEN /////////////
+
 const char w_VI         [27] = "JPGVOUMFYQBENHZRDKASXLICTW";
 const char w_VII 	    [27] = "NZJHGRCXMYSWBOUFAIVLPEKQDT";
 const char w_VIII 	    [27] = "FKQHTLXOCBJSPDZRAMEWNIUYGV";
@@ -9,8 +20,6 @@ const char w_UKW_Bruno  [27] = "ENKQAUYWJICOPBLMDXZVFTHRGS";
 const char w_UKW_Caesar [27] = "RDOBJNTKVEHMLFCWZAXGYIPSUQ";
 const char w_Beta       [27] = "LEYJVCNIXWPBQMDRTAKZGFUHOS";
 const char w_Gamma      [27] = "FSOKANUERHMBTIYCWLQPZXVGJD";
-
-///////////// WALZEN /////////////
 
 // Walzen-Initialisierung
 static void walze_inv(letter_t* in, letter_t* out) {
@@ -20,7 +29,7 @@ static void walze_inv(letter_t* in, letter_t* out) {
 static Walze walze_init(const char* lut, int pos, int ring) {
     Walze w;
     for (int i = 0; i < 26; i++) 
-        w.lut[i] = (letter_t) lut[i] - 'A';
+        w.lut[i] = to_letter(lut[i]);
 
     walze_inv(w.lut, w.lut_inv);
     w.pos = mod_26(pos);
@@ -32,7 +41,7 @@ static Walze walze_init(const char* lut, int pos, int ring) {
 // Walzenstellung aktualisieren
 static inline int in_notch(Walze* w) {
     // Notch-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
-    return (w->pos+'A' == 'Z' || w->pos+'A' == 'M');
+    return to_char(w->pos) == 'Z' || to_char(w->pos) == 'M';
 }
 static inline void pos_inc(Walze* w) {
     w->pos = (w->pos == 25) ? 0 : w->pos + 1;
@@ -62,12 +71,14 @@ static inline letter_t walze_output_ukw(Walze *w, letter_t in) {
 // Walzenkonfiguration ausgeben
 static void print_conf(Walze* w, int ukw) {
     letter_t* p = w->lut;
-    for (int i = 0; i < 26; i++)
-        putchar((char) *p++ + 'A');
+    for (int i = 0; i < 26; i++) {
+        putchar(to_char(*p));
+        p++;
+    }
 
     if (!ukw) {
-        printf(", Pos: %c", (char) w->pos + 'A');
-        printf(", RS: %c\n", (char) w->ring + 'A');
+        printf(", Pos: %c", to_char(w->pos));
+        printf(", RS: %c\n", to_char(w->ring));
     } else {
         printf("\n");
     }
@@ -105,7 +116,7 @@ void enigma_print_conf(Enigma* e) {
 char enigma_encrypt(Enigma* e, char in) {
     update_pos(e);
 
-    letter_t x = (letter_t) in - 'A';
+    letter_t x = to_letter(in);
 
     // Vorwärtspfad
     x = walze_output_vw(&e->w3, x);
@@ -122,5 +133,5 @@ char enigma_encrypt(Enigma* e, char in) {
     x = walze_output_rw(&e->w2, x);
     x = walze_output_rw(&e->w3, x);
 
-    return (char) x + 'A';
+    return to_char(x);
 }
