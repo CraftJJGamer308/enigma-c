@@ -45,8 +45,7 @@ static Walze walze_init(const Walze_conf* w_conf, char ring, char pos) {
     return w;
 }
 
-// Walzenstellung aktualisieren
-static inline int in_kerbe(Walze* w) {
+static inline bool in_kerbe(Walze* w) {
     // Kerben-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
     return w->pos == w->kerbe1 || w->pos == w->kerbe2;
 }
@@ -110,9 +109,10 @@ void enigma_print_conf(Enigma* e) {
     printf("UKW\t");   print_conf(&e->ukw);
 }
 
+// Walzenstellung aktualisieren
 static void update_pos(Enigma* e) {
-    int kerbe_w3 = in_kerbe(&e->w3);
-    int kerbe_w2 = in_kerbe(&e->w2);
+    bool kerbe_w3 = in_kerbe(&e->w3);
+    bool kerbe_w2 = in_kerbe(&e->w2);
     
     pos_inc(&e->w3);
     if (kerbe_w3 || kerbe_w2)
