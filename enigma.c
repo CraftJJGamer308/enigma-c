@@ -1,4 +1,3 @@
-#include <string.h>
 #include "enigma.h"
 #include "utility.h"
 
@@ -45,16 +44,6 @@ static inline int in_notch(Walze* w) {
 }
 static inline void pos_inc(Walze* w) {
     w->pos = (w->pos == 25) ? 0 : w->pos + 1;
-}
-static void update_pos(Enigma* e) {
-    int notch_w3 = in_notch(&e->w3);
-    int notch_w2 = in_notch(&e->w2);
-    
-    pos_inc(&e->w3);
-    if (notch_w3 || notch_w2)
-        pos_inc(&e->w2);
-    if (notch_w2)
-        pos_inc(&e->w1);
 }
 
 // Walzen-Ausgang
@@ -110,6 +99,17 @@ void enigma_print_conf(Enigma* e) {
     printf("W3:\t");    print_conf(&e->w3, 0);
     printf("GrW:\t");   print_conf(&e->grw, 0);
     printf("UKW:\t");   print_conf(&e->ukw, 1);
+}
+
+static void update_pos(Enigma* e) {
+    int notch_w3 = in_notch(&e->w3);
+    int notch_w2 = in_notch(&e->w2);
+    
+    pos_inc(&e->w3);
+    if (notch_w3 || notch_w2)
+        pos_inc(&e->w2);
+    if (notch_w2)
+        pos_inc(&e->w1);
 }
 
 // Verschlüsselung
