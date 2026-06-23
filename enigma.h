@@ -7,12 +7,19 @@
 // letter_t: interner Datentyp für Buchstaben. A - Z <=> 0 - 25
 typedef uint8_t letter_t;
 
+// Walze-Konfigurationstyp
+typedef struct {
+    char lut[27];
+    letter_t kerbe1, kerbe2;
+} Walze_conf;
+
 // Walze Datentyp
 typedef struct {
     letter_t lut[26];
     letter_t lut_inv[26];
     letter_t pos;
     letter_t ring;
+    letter_t kerbe1, kerbe2;
 } Walze;
 
 // Enigma Datentyp
@@ -25,21 +32,26 @@ typedef struct {
 } Enigma;
 
 // Walzenkonfigurationen
-extern const char w_VI         [27];
-extern const char w_VII 	   [27];
-extern const char w_VIII 	   [27];
-extern const char w_UKW_Bruno  [27];
-extern const char w_UKW_Caesar [27];
-extern const char w_Beta       [27];
-extern const char w_Gamma      [27];
+extern const Walze_conf w_I;
+extern const Walze_conf w_II;
+extern const Walze_conf w_III;
+extern const Walze_conf w_IV;
+extern const Walze_conf w_V;
+extern const Walze_conf w_VI;
+extern const Walze_conf w_VII;
+extern const Walze_conf w_VIII;
+extern const Walze_conf w_UKW_Bruno;
+extern const Walze_conf w_UKW_Caesar;
+extern const Walze_conf w_Beta;
+extern const Walze_conf w_Gamma;
 
 // Enigma-Initialisierung
 Enigma enigma_init(
-    const char* lut_w1,  const char* lut_w2,  const char* lut_w3,
-    const char* lut_grw,
-    const char* lut_ukw,
-    int pos_w1,  int pos_w2,  int pos_w3,  int pos_grw,
-    int ring_w1, int ring_w2, int ring_w3, int ring_grw
+    const Walze_conf* w1,  const Walze_conf* w2,  const Walze_conf* w3,
+    const Walze_conf* grw,
+    const Walze_conf* ukw,
+    char ring_w1, char ring_w2, char ring_w3, char ring_grw,
+    char pos_w1,  char pos_w2,  char pos_w3,  char pos_grw
 );
 
 void enigma_print_conf(Enigma* e);

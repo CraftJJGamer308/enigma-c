@@ -12,35 +12,43 @@ inline static char to_char(letter_t l) {
 
 ///////////// WALZEN /////////////
 
-const char w_VI         [27] = "JPGVOUMFYQBENHZRDKASXLICTW";
-const char w_VII 	    [27] = "NZJHGRCXMYSWBOUFAIVLPEKQDT";
-const char w_VIII 	    [27] = "FKQHTLXOCBJSPDZRAMEWNIUYGV";
-const char w_UKW_Bruno  [27] = "ENKQAUYWJICOPBLMDXZVFTHRGS";
-const char w_UKW_Caesar [27] = "RDOBJNTKVEHMLFCWZAXGYIPSUQ";
-const char w_Beta       [27] = "LEYJVCNIXWPBQMDRTAKZGFUHOS";
-const char w_Gamma      [27] = "FSOKANUERHMBTIYCWLQPZXVGJD";
+const Walze_conf w_I          = { .lut = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .kerbe1 = 'Q' };
+const Walze_conf w_II         = { .lut = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .kerbe1 = 'E' };
+const Walze_conf w_III        = { .lut = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .kerbe1 = 'V' };
+const Walze_conf w_IV         = { .lut = "ESOVPZJAYQUIRHXLNFTGKDCMWB", .kerbe1 = 'J' };
+const Walze_conf w_V          = { .lut = "VZBRGITYUPSDNHLXAWMJQOFECK", .kerbe1 = 'Z' };
+const Walze_conf w_VI         = { .lut = "JPGVOUMFYQBENHZRDKASXLICTW", .kerbe1 = 'Z', .kerbe2 = 'M' };
+const Walze_conf w_VII 	      = { .lut = "NZJHGRCXMYSWBOUFAIVLPEKQDT", .kerbe1 = 'Z', .kerbe2 = 'M' };
+const Walze_conf w_VIII 	  = { .lut = "FKQHTLXOCBJSPDZRAMEWNIUYGV", .kerbe1 = 'Z', .kerbe2 = 'M' };
+const Walze_conf w_UKW_Bruno  = { .lut = "ENKQAUYWJICOPBLMDXZVFTHRGS" };
+const Walze_conf w_UKW_Caesar = { .lut = "RDOBJNTKVEHMLFCWZAXGYIPSUQ" };
+const Walze_conf w_Beta       = { .lut = "LEYJVCNIXWPBQMDRTAKZGFUHOS" };
+const Walze_conf w_Gamma      = { .lut = "FSOKANUERHMBTIYCWLQPZXVGJD" };
 
 // Walzen-Initialisierung
 static void walze_inv(letter_t* in, letter_t* out) {
     for(int i = 0; i < 26; i++)
         out[in[i]] = i;
 }
-static Walze walze_init(const char* lut, int pos, int ring) {
+static Walze walze_init(const Walze_conf* w_conf, char ring, char pos) {
     Walze w;
     for (int i = 0; i < 26; i++) 
-        w.lut[i] = to_letter(lut[i]);
+        w.lut[i] = to_letter(w_conf->lut[i]);
 
     walze_inv(w.lut, w.lut_inv);
-    w.pos = mod_26(pos);
-    w.ring = mod_26(ring);
 
+    w.ring = to_letter(ring);
+    w.pos =  to_letter(pos);
+
+    w.kerbe1 = to_letter(w_conf->kerbe1);
+    w.kerbe2 = to_letter(w_conf->kerbe2);
     return w;
 }
 
 // Walzenstellung aktualisieren
-static inline int in_notch(Walze* w) {
-    // Notch-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
-    return to_char(w->pos) == 'Z' || to_char(w->pos) == 'M';
+static inline int in_kerbe(Walze* w) {
+    // Kerben-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
+    return w->pos == w->kerbe1 || w->pos == w->kerbe2;
 }
 static inline void pos_inc(Walze* w) {
     w->pos = (w->pos == 25) ? 0 : w->pos + 1;
@@ -58,57 +66,58 @@ static inline letter_t walze_output_ukw(Walze *w, letter_t in) {
 }
 
 // Walzenkonfiguration ausgeben
-static void print_conf(Walze* w, int ukw) {
+static void print_conf(Walze* w) {
     letter_t* p = w->lut;
     for (int i = 0; i < 26; i++) {
         putchar(to_char(*p));
         p++;
     }
-
-    if (!ukw) {
-        printf(", Pos: %c", to_char(w->pos));
-        printf(", RS: %c\n", to_char(w->ring));
-    } else {
-        printf("\n");
-    }
+  
+    printf("\t%c\t", to_char(w->ring));
+    printf("%c\t",   to_char(w->pos));
+    printf("%c\t",   to_char(w->kerbe1));
+    printf("%c\n",   to_char(w->kerbe2));
 }
 
 ///////////// ENIGMA /////////////
 
 // Enigma-Initialisierung
 Enigma enigma_init(
-    const char* lut_w1,  const char* lut_w2,  const char* lut_w3,
-    const char* lut_grw,
-    const char* lut_ukw,
-    int pos_w1,  int pos_w2,  int pos_w3,  int pos_grw,
-    int ring_w1, int ring_w2, int ring_w3, int ring_grw
+    const Walze_conf* w1,  const Walze_conf* w2,  const Walze_conf* w3,
+    const Walze_conf* grw,
+    const Walze_conf* ukw,
+    char ring_w1, char ring_w2, char ring_w3, char ring_grw,
+    char pos_w1,  char pos_w2,  char pos_w3,  char pos_grw
 ) {
     Enigma e;
-    e.w1     = walze_init(lut_w1,  pos_w1,  ring_w1);
-    e.w2     = walze_init(lut_w2,  pos_w2,  ring_w2);
-    e.w3     = walze_init(lut_w3,  pos_w3,  ring_w3);
-    e.grw    = walze_init(lut_grw, pos_grw, ring_grw);
-    e.ukw    = walze_init(lut_ukw, 0, 0);
+    e.w1     = walze_init(w1,  ring_w1,  pos_w1 );
+    e.w2     = walze_init(w2,  ring_w2,  pos_w2 );
+    e.w3     = walze_init(w3,  ring_w3,  pos_w3 );
+    e.grw    = walze_init(grw, ring_grw, pos_grw);
+    e.ukw    = walze_init(ukw, 0, 0);
     return e;
 }
 
 // Gesamt-Konfiguration ausgeben
 void enigma_print_conf(Enigma* e) {
-    printf("W1:\t");    print_conf(&e->w1, 0);
-    printf("W2:\t");    print_conf(&e->w2, 0);
-    printf("W3:\t");    print_conf(&e->w3, 0);
-    printf("GrW:\t");   print_conf(&e->grw, 0);
-    printf("UKW:\t");   print_conf(&e->ukw, 1);
+    printf("Walze\tLUT\t\t\t\tRS\tPos\tKerbe1\tKerbe2\n");
+    printf("----------------------------------------------------------------------\n");
+
+    printf("W1\t");    print_conf(&e->w1);
+    printf("W2\t");    print_conf(&e->w2);
+    printf("W3\t");    print_conf(&e->w3);
+    printf("GrW\t");   print_conf(&e->grw);
+    printf("UKW\t");   print_conf(&e->ukw);
 }
 
 static void update_pos(Enigma* e) {
-    int notch_w3 = in_notch(&e->w3);
-    int notch_w2 = in_notch(&e->w2);
+    int kerbe_w3 = in_kerbe(&e->w3);
+    int kerbe_w2 = in_kerbe(&e->w2);
     
     pos_inc(&e->w3);
-    if (notch_w3 || notch_w2)
+    if (kerbe_w3 || kerbe_w2)
         pos_inc(&e->w2);
-    if (notch_w2)
+    if (kerbe_w2)
         pos_inc(&e->w1);
 }
 
