@@ -1,5 +1,8 @@
 #ifndef WALZE_H
 #define WALZE_H
+
+#define SHOW_INTERNAL
+
 #include <stdio.h>
 #include <stdint.h>
 #include "utility.h"

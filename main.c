@@ -32,6 +32,11 @@ int main() {
     printf("Eingabe:\t%s\n", text);
     printf("Ausgabe:\t");
 
+#ifdef SHOW_INTERNAL
+    printf("\n  Pos |   W3   W2   W1   GrW  UKW  GrW  W1   W2   W3  ");
+    printf("\n------------------------------------------------------");
+#endif
+
     for (char *p = text; *p; p++) {
         putchar(enigma_encrypt(&e, *p));
     }

@@ -55,12 +55,21 @@ static inline void pos_inc(Walze* w) {
 
 // Walzen-Ausgang
 static inline letter_t walze_output_vw(Walze *w, letter_t in) {
+#ifdef SHOW_INTERNAL
+    printf("%c -> ", to_char(in));
+#endif
     return mod_26(w->lut[mod_26(in + w->pos - w->ring)] - w->pos + w->ring);
 }
 static inline letter_t walze_output_rw(Walze *w, letter_t in) {
+#ifdef SHOW_INTERNAL
+    printf("%c -> ", to_char(in));
+#endif
     return mod_26(w->lut_inv[mod_26(in + w->pos - w->ring)] - w->pos + w->ring);
 }
 static inline letter_t walze_output_ukw(Walze *w, letter_t in) {
+#ifdef SHOW_INTERNAL
+    printf("%c -> ", to_char(in));
+#endif
     return w->lut[in];
 }
 
@@ -126,6 +135,14 @@ char enigma_encrypt(Enigma* e, char in) {
     update_pos(e);
 
     letter_t x = to_letter(in);
+
+#ifdef SHOW_INTERNAL
+    printf("\n%c %c %c | ", 
+        to_char(e->w1.pos), 
+        to_char(e->w2.pos), 
+        to_char(e->w3.pos)
+    );
+#endif
 
     // Vorwärtspfad
     x = walze_output_vw(&e->w3, x);
