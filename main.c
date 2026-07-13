@@ -3,7 +3,10 @@
 
 int main() {
     //////// Initialisierung ////////
-    Enigma e = enigma_init(
+    Enigma e;
+    
+    enigma_init(
+        &e,
         &w_VIII, &w_VII, &w_VI,    // W1, W2, W3
         &w_Beta,                // GrW
         &w_UKW_Bruno,           // UKW

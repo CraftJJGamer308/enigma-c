@@ -30,19 +30,17 @@ static void walze_inv(letter_t* in, letter_t* out) {
     for(int i = 0; i < 26; i++)
         out[in[i]] = i;
 }
-static Walze walze_init(const Walze_conf* w_conf, char ring, char pos) {
-    Walze w;
+static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) {
     for (int i = 0; i < 26; i++) 
-        w.lut[i] = to_letter(w_conf->lut[i]);
+        w->lut[i] = to_letter(w_conf->lut[i]);
 
-    walze_inv(w.lut, w.lut_inv);
+    walze_inv(w->lut, w->lut_inv);
 
-    w.ring = to_letter(ring);
-    w.pos =  to_letter(pos);
+    w->ring = to_letter(ring);
+    w->pos =  to_letter(pos);
 
-    w.kerbe1 = to_letter(w_conf->kerbe1);
-    w.kerbe2 = to_letter(w_conf->kerbe2);
-    return w;
+    w->kerbe1 = to_letter(w_conf->kerbe1);
+    w->kerbe2 = to_letter(w_conf->kerbe2);
 }
 
 static inline bool in_kerbe(Walze* w) {
@@ -90,20 +88,19 @@ static void print_conf(Walze* w) {
 ///////////// ENIGMA /////////////
 
 // Enigma-Initialisierung
-Enigma enigma_init(
+void enigma_init(
+    Enigma* e,
     const Walze_conf* w1,  const Walze_conf* w2,  const Walze_conf* w3,
     const Walze_conf* grw,
     const Walze_conf* ukw,
     char ring_w1, char ring_w2, char ring_w3, char ring_grw,
     char pos_w1,  char pos_w2,  char pos_w3,  char pos_grw
-) {
-    Enigma e;
-    e.w1     = walze_init(w1,  ring_w1,  pos_w1 );
-    e.w2     = walze_init(w2,  ring_w2,  pos_w2 );
-    e.w3     = walze_init(w3,  ring_w3,  pos_w3 );
-    e.grw    = walze_init(grw, ring_grw, pos_grw);
-    e.ukw    = walze_init(ukw, 0, 0);
-    return e;
+) {    
+    walze_init(&e->w1,  w1,  ring_w1,  pos_w1 );
+    walze_init(&e->w2,  w2,  ring_w2,  pos_w2 );
+    walze_init(&e->w3,  w3,  ring_w3,  pos_w3 );
+    walze_init(&e->grw, grw, ring_grw, pos_grw);
+    walze_init(&e->ukw, ukw, 0, 0);
 }
 
 // Gesamt-Konfiguration ausgeben

@@ -1,8 +1,6 @@
 #ifndef WALZE_H
 #define WALZE_H
 
-#define SHOW_INTERNAL
-
 #include <stdio.h>
 #include <stdint.h>
 #include "utility.h"
@@ -49,7 +47,8 @@ extern const Walze_conf w_Beta;
 extern const Walze_conf w_Gamma;
 
 // Enigma-Initialisierung
-Enigma enigma_init(
+void enigma_init(
+    Enigma* e,
     const Walze_conf* w1,  const Walze_conf* w2,  const Walze_conf* w3,
     const Walze_conf* grw,
     const Walze_conf* ukw,
