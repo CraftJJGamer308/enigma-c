@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include "enigma.h"
+#include "utility.h"
+#include <stdio.h>
 
 int main() {
     //////// Initialisierung ////////

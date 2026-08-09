@@ -6,7 +6,7 @@ A simple and clean implementation of the Enigma Machine in C.
 ## Requirements
 
 - CMake
-- A C23-compatible compiler
+- C compiler
 
 ## Build
 

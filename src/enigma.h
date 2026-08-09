@@ -1,9 +1,7 @@
 #ifndef WALZE_H
 #define WALZE_H
 
-#include <stdio.h>
 #include <stdint.h>
-#include "utility.h"
 
 // letter_t: interner Datentyp für Buchstaben. A - Z <=> 0 - 25
 typedef uint8_t letter_t;

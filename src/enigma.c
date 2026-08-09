@@ -1,5 +1,6 @@
 #include "enigma.h"
 #include "utility.h"
+#include <stdio.h>
 #include <string.h>
 
 ///////////// UMRECHNUNG /////////////
@@ -40,12 +41,12 @@ static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) 
     w->kerbe2 = to_letter(w_conf->kerbe2);
 }
 
-static inline bool in_kerbe(Walze* w) {
+static inline int in_kerbe(Walze* w) {
     // Kerben-Logik
     return w->pos == w->kerbe1 || w->pos == w->kerbe2;
 }
 static inline void pos_inc(Walze* w) {
-    w->pos = (w->pos == 25) ? 0 : w->pos + 1;
+    w->pos = (w->pos + 1) % 26;
 }
 
 // Walzen-Ausgang
@@ -53,13 +54,15 @@ static inline letter_t walze_output_vw(Walze *w, letter_t in) {
 #ifdef SHOW_INTERNAL
     printf("%c -> ", to_char(in));
 #endif
-    return mod_26(w->lut[mod_26(in + w->pos - w->ring)] - w->pos + w->ring);
+    int offset = w->pos - w->ring;
+    return mod_26(w->lut[mod_26(in + offset)] - offset);
 }
 static inline letter_t walze_output_rw(Walze *w, letter_t in) {
 #ifdef SHOW_INTERNAL
     printf("%c -> ", to_char(in));
 #endif
-    return mod_26(w->lut_inv[mod_26(in + w->pos - w->ring)] - w->pos + w->ring);
+    int offset = w->pos - w->ring;
+    return mod_26(w->lut_inv[mod_26(in + offset)] - offset);
 }
 static inline letter_t walze_output_ukw(Walze *w, letter_t in) {
 #ifdef SHOW_INTERNAL
@@ -116,8 +119,8 @@ void enigma_print_conf(Enigma* e) {
 
 // Walzenstellung aktualisieren
 static void update_pos(Enigma* e) {
-    bool kerbe_w3 = in_kerbe(&e->w3);
-    bool kerbe_w2 = in_kerbe(&e->w2);
+    int kerbe_w3 = in_kerbe(&e->w3);
+    int kerbe_w2 = in_kerbe(&e->w2);
     
     pos_inc(&e->w3);
     if (kerbe_w3 || kerbe_w2)
