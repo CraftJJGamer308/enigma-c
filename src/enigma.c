@@ -1,5 +1,6 @@
 #include "enigma.h"
 #include "utility.h"
+#include <string.h>
 
 ///////////// UMRECHNUNG /////////////
 
@@ -26,15 +27,11 @@ const Walze_conf w_Beta       = { .lut = "LEYJVCNIXWPBQMDRTAKZGFUHOS" };
 const Walze_conf w_Gamma      = { .lut = "FSOKANUERHMBTIYCWLQPZXVGJD" };
 
 // Walzen-Initialisierung
-static void walze_inv(letter_t* in, letter_t* out) {
-    for(int i = 0; i < 26; i++)
-        out[in[i]] = i;
-}
 static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) {
-    for (int i = 0; i < 26; i++) 
+    for (int i = 0; i < 26; i++) {
         w->lut[i] = to_letter(w_conf->lut[i]);
-
-    walze_inv(w->lut, w->lut_inv);
+        w->lut_inv[w->lut[i]] = i; // Walzen-Invertierung
+    }
 
     w->ring = to_letter(ring);
     w->pos =  to_letter(pos);
@@ -44,7 +41,7 @@ static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) 
 }
 
 static inline bool in_kerbe(Walze* w) {
-    // Kerben-Logik (VI/VII/VIII: Der Übertrag geschieht beim Übergang von Z auf A und von M auf N)
+    // Kerben-Logik
     return w->pos == w->kerbe1 || w->pos == w->kerbe2;
 }
 static inline void pos_inc(Walze* w) {
@@ -95,7 +92,9 @@ void enigma_init(
     const Walze_conf* ukw,
     char ring_w1, char ring_w2, char ring_w3, char ring_grw,
     char pos_w1,  char pos_w2,  char pos_w3,  char pos_grw
-) {    
+) {
+    memset(e, 0, sizeof(Enigma)); // Init. mit Defaultwerten
+
     walze_init(&e->w1,  w1,  ring_w1,  pos_w1 );
     walze_init(&e->w2,  w2,  ring_w2,  pos_w2 );
     walze_init(&e->w3,  w3,  ring_w3,  pos_w3 );

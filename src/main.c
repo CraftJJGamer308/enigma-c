@@ -43,6 +43,7 @@ int main() {
     for (char *p = text; *p; p++) {
         putchar(enigma_encrypt(&e, *p));
     }
+    putchar('\n');
 
     return 0;
 }
