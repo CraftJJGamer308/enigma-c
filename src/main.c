@@ -8,11 +8,11 @@ int main() {
     
     enigma_init(
         &e,
-        &w_VIII, &w_VII, &w_VI,    // W1, W2, W3
+        &w_VI, &w_VII, &w_VIII, // W3, W2, W1
         &w_Beta,                // GrW
-        &w_UKW_Bruno,           // UKW
-        'B', 'D', 'C', 'A',     // ring:       W1, W2, W3, GrW
-        'F', 'Q', 'E', 'A'      // init. pos:  W1, W2, W3, GrW
+        &w_Bruno,               // UKW
+        'C', 'D', 'B', 'A',     // ring:       W3, W2, W1, GrW
+        'E', 'Q', 'F', 'A'      // init. pos:  W3, W2, W1, GrW
     );
     
     //////// Anfangswalzenkonfigurationen ausgeben ////////

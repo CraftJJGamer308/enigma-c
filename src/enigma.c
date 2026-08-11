@@ -22,8 +22,8 @@ const Walze_conf w_V          = { .lut = "VZBRGITYUPSDNHLXAWMJQOFECK", .kerbe1 =
 const Walze_conf w_VI         = { .lut = "JPGVOUMFYQBENHZRDKASXLICTW", .kerbe1 = 'Z', .kerbe2 = 'M' };
 const Walze_conf w_VII 	      = { .lut = "NZJHGRCXMYSWBOUFAIVLPEKQDT", .kerbe1 = 'Z', .kerbe2 = 'M' };
 const Walze_conf w_VIII 	  = { .lut = "FKQHTLXOCBJSPDZRAMEWNIUYGV", .kerbe1 = 'Z', .kerbe2 = 'M' };
-const Walze_conf w_UKW_Bruno  = { .lut = "ENKQAUYWJICOPBLMDXZVFTHRGS" };
-const Walze_conf w_UKW_Caesar = { .lut = "RDOBJNTKVEHMLFCWZAXGYIPSUQ" };
+const Walze_conf w_Bruno      = { .lut = "ENKQAUYWJICOPBLMDXZVFTHRGS" };
+const Walze_conf w_Caesar     = { .lut = "RDOBJNTKVEHMLFCWZAXGYIPSUQ" };
 const Walze_conf w_Beta       = { .lut = "LEYJVCNIXWPBQMDRTAKZGFUHOS" };
 const Walze_conf w_Gamma      = { .lut = "FSOKANUERHMBTIYCWLQPZXVGJD" };
 
@@ -90,17 +90,17 @@ static void print_conf(Walze* w) {
 // Enigma-Initialisierung
 void enigma_init(
     Enigma* e,
-    const Walze_conf* w1,  const Walze_conf* w2,  const Walze_conf* w3,
+    const Walze_conf* w3, const Walze_conf* w2, const Walze_conf* w1, 
     const Walze_conf* grw,
     const Walze_conf* ukw,
-    char ring_w1, char ring_w2, char ring_w3, char ring_grw,
-    char pos_w1,  char pos_w2,  char pos_w3,  char pos_grw
+    char ring_w3, char ring_w2, char ring_w1, char ring_grw,
+    char pos_w3,  char pos_w2,  char pos_w1,  char pos_grw
 ) {
     memset(e, 0, sizeof(Enigma)); // Init. mit Defaultwerten
 
-    walze_init(&e->w1,  w1,  ring_w1,  pos_w1 );
-    walze_init(&e->w2,  w2,  ring_w2,  pos_w2 );
     walze_init(&e->w3,  w3,  ring_w3,  pos_w3 );
+    walze_init(&e->w2,  w2,  ring_w2,  pos_w2 );
+    walze_init(&e->w1,  w1,  ring_w1,  pos_w1 );
     walze_init(&e->grw, grw, ring_grw, pos_grw);
     walze_init(&e->ukw, ukw, 0, 0);
 }
@@ -110,9 +110,9 @@ void enigma_print_conf(Enigma* e) {
     printf("Walze\tLUT\t\t\t\tRS\tPos\tKerbe1\tKerbe2\n");
     printf("----------------------------------------------------------------------\n");
 
-    printf("W1\t");    print_conf(&e->w1);
-    printf("W2\t");    print_conf(&e->w2);
     printf("W3\t");    print_conf(&e->w3);
+    printf("W2\t");    print_conf(&e->w2);
+    printf("W1\t");    print_conf(&e->w1);
     printf("GrW\t");   print_conf(&e->grw);
     printf("UKW\t");   print_conf(&e->ukw);
 }
