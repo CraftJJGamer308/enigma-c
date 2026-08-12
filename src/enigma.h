@@ -8,6 +8,7 @@ typedef uint8_t letter_t;
 
 // Walze-Konfigurationstyp
 typedef struct {
+    char* name;
     char lut[27];
     letter_t kerbe1, kerbe2;
 } Walze_conf;
@@ -60,5 +61,5 @@ void enigma_init(
 
 void enigma_print_conf(Enigma* e);
 char enigma_encrypt(Enigma* e, char in);
-
+int enigma_init_from_str(Enigma* e, char* str);
 #endif

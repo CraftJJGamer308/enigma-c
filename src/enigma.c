@@ -160,3 +160,93 @@ char enigma_encrypt(Enigma* e, char in) {
 
     return to_char(x);
 }
+
+
+/////////////// string args ///////////////
+
+#include <ctype.h>
+
+typedef struct {
+    const char *name;
+    const Walze_conf *walze_conf;
+} Walze_conf_LUT;
+
+static Walze_conf* walze_conf_lookup(char* name) {
+    static const Walze_conf_LUT table[] = {
+        { "I",      &w_I },
+        { "II",     &w_II },
+        { "III",    &w_III },
+        { "IV",     &w_IV },
+        { "V",      &w_V },
+        { "VI",     &w_VI },
+        { "VII",    &w_VII },
+        { "VIII",   &w_VIII },
+        { "Beta",   &w_Beta },
+        { "Gamma",  &w_Gamma },
+        { "Bruno",  &w_Bruno },
+        { "Caesar", &w_Caesar },
+        { NULL, NULL }
+    };
+
+    for (int i = 0; table[i].name; i++) {
+        if (strcmp(table[i].name, name) == 0)
+            return table[i].walze_conf;
+    }
+
+    return NULL;
+}
+
+int enigma_init_from_str(Enigma* e, char* str) {
+    char buf[128];
+    strncpy(buf, str, sizeof(buf) - 1);
+
+    char *walze    = strtok(buf, ":");
+    char *grw      = strtok(NULL, ":");
+    char *ukw      = strtok(NULL, ":");
+    char *ring     = strtok(NULL, ":");
+    char *pos      = strtok(NULL, ":");
+
+    if (!walze || !ring || !pos || !grw || !ukw)
+        return 1;
+    if (strlen(ring) != 4 || strlen(pos) != 4) 
+        return 1;
+    if (!isalpha(ring[0]) || !isalpha(ring[1]) || !isalpha(ring[2]) || !isalpha(ring[3]) || !isalpha(pos[0]) || !isalpha(pos[1]) || !isalpha(pos[2]) || !isalpha(pos[3]))
+        return 1;
+
+    char *w1 = strtok(walze, "-");
+    char *w2 = strtok(NULL, "-");
+    char *w3 = strtok(NULL, "-");
+
+    if (!w1 || !w2 || !w3) 
+        return 1;
+
+    const Walze_conf *w1_conf  = walze_conf_lookup(w1);
+    const Walze_conf *w2_conf  = walze_conf_lookup(w2);
+    const Walze_conf *w3_conf  = walze_conf_lookup(w3);
+    const Walze_conf *grw_conf = walze_conf_lookup(grw);
+    const Walze_conf *ukw_conf = walze_conf_lookup(ukw);
+
+    if (!w1_conf || !w2_conf || !w3_conf || !grw_conf || !ukw_conf) 
+        return 1;
+
+    char ring_w3  = toupper(ring[0]);
+    char ring_w2  = toupper(ring[1]);
+    char ring_w1  = toupper(ring[2]);
+    char ring_grw = toupper(ring[3]);
+
+    char pos_w3  = toupper(pos[0]);
+    char pos_w2  = toupper(pos[1]);
+    char pos_w1  = toupper(pos[2]);
+    char pos_grw = toupper(pos[3]);
+
+    enigma_init(
+        e,
+        w3_conf, w2_conf, w1_conf,
+        grw_conf,
+        ukw_conf,
+        ring_w3, ring_w2, ring_w1, ring_grw,
+        pos_w3, pos_w2, pos_w1, pos_grw    
+    );
+
+    return 0;
+}

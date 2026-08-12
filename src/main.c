@@ -6,15 +6,20 @@ int main() {
     //////// Initialisierung ////////
     Enigma e;
     
-    enigma_init(
-        &e,
-        &w_VI, &w_VII, &w_VIII, // W3, W2, W1
-        &w_Beta,                // GrW
-        &w_Bruno,               // UKW
-        'C', 'D', 'B', 'A',     // ring:       W3, W2, W1, GrW
-        'E', 'Q', 'F', 'A'      // init. pos:  W3, W2, W1, GrW
-    );
+    // enigma_init(
+    //     &e,
+    //     &w_VI, &w_VII, &w_VIII, // W3, W2, W1
+    //     &w_Beta,                // GrW
+    //     &w_Bruno,               // UKW
+    //     'C', 'D', 'B', 'A',     // ring:       W3, W2, W1, GrW
+    //     'E', 'Q', 'F', 'A'      // init. pos:  W3, W2, W1, GrW
+    // );
     
+    if (enigma_init_from_str(&e, "VIII-VII-VI:Beta:Bruno:CDBA:EQFA")) {
+        fprintf(stderr, "Ungültige Konfiguration\n");
+        return 1;
+    }
+
     //////// Anfangswalzenkonfigurationen ausgeben ////////
     printf("\nAnfangskonfigurationen\n");
     printf("======================\n");
