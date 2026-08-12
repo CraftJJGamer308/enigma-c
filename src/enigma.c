@@ -2,6 +2,7 @@
 #include "utility.h"
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 ///////////// UMRECHNUNG /////////////
 
@@ -164,15 +165,11 @@ char enigma_encrypt(Enigma* e, char in) {
 
 /////////////// string args ///////////////
 
-#include <ctype.h>
-
-typedef struct {
-    const char *name;
-    const Walze_conf *walze_conf;
-} Walze_conf_LUT;
-
 static Walze_conf* walze_conf_lookup(char* name) {
-    static const Walze_conf_LUT table[] = {
+    static const struct {
+        const char *name;
+        const Walze_conf *walze_conf;
+    } table[] = {
         { "I",      &w_I },
         { "II",     &w_II },
         { "III",    &w_III },
@@ -189,13 +186,16 @@ static Walze_conf* walze_conf_lookup(char* name) {
     };
 
     for (int i = 0; table[i].name; i++) {
-        if (strcmp(table[i].name, name) == 0)
-            return table[i].walze_conf;
+        if (strcmp(table[i].name, name) == 0) {
+            return (Walze_conf*) table[i].walze_conf;
+        }
     }
 
     return NULL;
 }
 
+// parses text to enigma_init arguments.
+// returns 0 if success, 1 if invalid
 int enigma_init_from_str(Enigma* e, char* str) {
     char buf[128];
     strncpy(buf, str, sizeof(buf) - 1);
@@ -210,8 +210,10 @@ int enigma_init_from_str(Enigma* e, char* str) {
         return 1;
     if (strlen(ring) != 4 || strlen(pos) != 4) 
         return 1;
-    if (!isalpha(ring[0]) || !isalpha(ring[1]) || !isalpha(ring[2]) || !isalpha(ring[3]) || !isalpha(pos[0]) || !isalpha(pos[1]) || !isalpha(pos[2]) || !isalpha(pos[3]))
-        return 1;
+    for (int i = 0; i < 4; i++) {
+        if (!isalpha(ring[i]) || !isalpha(pos[i]))
+            return 1;
+    }
 
     char *w1 = strtok(walze, "-");
     char *w2 = strtok(NULL, "-");

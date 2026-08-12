@@ -2,14 +2,12 @@
 #include <ctype.h>
 
 void clean_string(char* str) {
-    int i, j = 0;
+    char *p, *q;
+    for (p = q = str; *p; p++) 
+        if (isalpha(*p))
+            *(q++) = toupper(*p);
 
-    for (i = 0; str[i] != '\0'; i++) {
-        if (isalpha((unsigned char)str[i]))
-            str[j++] = toupper((unsigned char)str[i]);
-    }
-
-    str[j] = '\0';
+    *q = '\0';
 }
 
 inline int mod_26(int b) {
