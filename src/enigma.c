@@ -42,10 +42,47 @@ static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) 
     w->kerbe2 = to_letter(w_conf->kerbe2);
 }
 
+// Steckbrett-Generierung
+static int sb_lut_gen(Walze_conf* sb_conf, const char* sb_str) {
+    char buf_sb[128];
+    strncpy(buf_sb, sb_str, sizeof(buf_sb) - 1);
+    buf_sb[sizeof(buf_sb) - 1] = '\0';
+
+    char *pair = strtok(buf_sb, ":");
+
+    while (pair != NULL) {
+        if (strlen(pair) != 2)
+            return -1;
+
+        char a = pair[0];
+        char b = pair[1];
+
+        if (!isalpha(a) || !isalpha(b))
+            return -1;
+        if (a == b)
+            return -1;
+
+        a = toupper(a);
+        b = toupper(b);
+
+        if (sb_conf->lut[to_letter(a)] != a || sb_conf->lut[to_letter(b)] != b)
+            return -1;
+
+        sb_conf->lut[to_letter(a)] = b;
+        sb_conf->lut[to_letter(b)] = a;
+
+        pair = strtok(NULL, ":");
+    }
+
+    return 0;
+}
+
+// Kerben-Logik
 static inline int in_kerbe(Walze* w) {
-    // Kerben-Logik
     return w->pos == w->kerbe1 || w->pos == w->kerbe2;
 }
+
+// Walzenpositions-Inkrementierung
 static inline void pos_inc(Walze* w) {
     w->pos = (w->pos == 25) ? 0 : (w->pos + 1);
 }
@@ -91,14 +128,14 @@ static void print_conf(Walze* w) {
 // Enigma-Initialisierung
 void enigma_init(
     Enigma* e,
+    Walze_conf* sb,
     const Walze_conf* w3, const Walze_conf* w2, const Walze_conf* w1, 
     const Walze_conf* grw,
     const Walze_conf* ukw,
     char ring_w3, char ring_w2, char ring_w1, char ring_grw,
     char pos_w3,  char pos_w2,  char pos_w1,  char pos_grw
 ) {
-    memset(e, 0, sizeof(Enigma)); // Init. mit Defaultwerten
-
+    walze_init(&e->sb, sb, 0, 0);
     walze_init(&e->w3,  w3,  ring_w3,  pos_w3 );
     walze_init(&e->w2,  w2,  ring_w2,  pos_w2 );
     walze_init(&e->w1,  w1,  ring_w1,  pos_w1 );
@@ -111,59 +148,13 @@ void enigma_print_conf(Enigma* e) {
     printf("Walze\tLUT\t\t\t\tRS\tPos\tKerbe1\tKerbe2\n");
     printf("----------------------------------------------------------------------\n");
 
+    printf("SB\t");    print_conf(&e->sb);
     printf("W3\t");    print_conf(&e->w3);
     printf("W2\t");    print_conf(&e->w2);
     printf("W1\t");    print_conf(&e->w1);
     printf("GrW\t");   print_conf(&e->grw);
     printf("UKW\t");   print_conf(&e->ukw);
 }
-
-// Walzenstellung aktualisieren
-static void update_pos(Enigma* e) {
-    int kerbe_w3 = in_kerbe(&e->w3);
-    int kerbe_w2 = in_kerbe(&e->w2);
-    
-    pos_inc(&e->w3);
-    if (kerbe_w3 || kerbe_w2)
-        pos_inc(&e->w2);
-    if (kerbe_w2)
-        pos_inc(&e->w1);
-}
-
-// Verschlüsselung
-char enigma_encrypt(Enigma* e, char in) {
-    update_pos(e);
-
-    letter_t x = to_letter(in);
-
-#ifdef SHOW_INTERNAL
-    printf("\n%c %c %c | ", 
-        to_char(e->w1.pos), 
-        to_char(e->w2.pos), 
-        to_char(e->w3.pos)
-    );
-#endif
-
-    // Vorwärtspfad
-    x = walze_output_vw(&e->w3, x);
-    x = walze_output_vw(&e->w2, x);
-    x = walze_output_vw(&e->w1, x);
-    x = walze_output_vw(&e->grw, x);
-
-    // UKW
-    x = walze_output_ukw(&e->ukw, x);
-
-    // Rückwärtspfad
-    x = walze_output_rw(&e->grw, x);
-    x = walze_output_rw(&e->w1, x);
-    x = walze_output_rw(&e->w2, x);
-    x = walze_output_rw(&e->w3, x);
-
-    return to_char(x);
-}
-
-
-/////////////// string args ///////////////
 
 static Walze_conf* walze_conf_lookup(char* name) {
     static const struct {
@@ -194,13 +185,12 @@ static Walze_conf* walze_conf_lookup(char* name) {
     return NULL;
 }
 
-// parses text to enigma_init arguments.
-// returns 0 if success, 1 if invalid
-int enigma_init_from_str(Enigma* e, char* str) {
-    char buf[128];
-    strncpy(buf, str, sizeof(buf) - 1);
+// Zeichenkettenverarbeitung für Argumente für enigma_init. gibt 0 zurückbei Erfolg
+int enigma_init_from_str(Enigma* e, char* config, char* sb_str) {
+    char buf_config[128];
+    strncpy(buf_config, config, sizeof(buf_config) - 1);
 
-    char *walze    = strtok(buf, ":");
+    char *walze    = strtok(buf_config, ":");
     char *grw      = strtok(NULL, ":");
     char *ukw      = strtok(NULL, ":");
     char *ring     = strtok(NULL, ":");
@@ -215,20 +205,20 @@ int enigma_init_from_str(Enigma* e, char* str) {
             return 1;
     }
 
-    char *w1 = strtok(walze, "-");
+    char *w3 = strtok(walze, "-");
     char *w2 = strtok(NULL, "-");
-    char *w3 = strtok(NULL, "-");
+    char *w1 = strtok(NULL, "-");
 
-    if (!w1 || !w2 || !w3) 
+    if (!w3 || !w2 || !w1) 
         return 1;
 
-    const Walze_conf *w1_conf  = walze_conf_lookup(w1);
-    const Walze_conf *w2_conf  = walze_conf_lookup(w2);
     const Walze_conf *w3_conf  = walze_conf_lookup(w3);
+    const Walze_conf *w2_conf  = walze_conf_lookup(w2);
+    const Walze_conf *w1_conf  = walze_conf_lookup(w1);
     const Walze_conf *grw_conf = walze_conf_lookup(grw);
     const Walze_conf *ukw_conf = walze_conf_lookup(ukw);
 
-    if (!w1_conf || !w2_conf || !w3_conf || !grw_conf || !ukw_conf) 
+    if (!w3_conf || !w2_conf || !w1_conf || !grw_conf || !ukw_conf) 
         return 1;
 
     char ring_w3  = toupper(ring[0]);
@@ -241,8 +231,13 @@ int enigma_init_from_str(Enigma* e, char* str) {
     char pos_w1  = toupper(pos[2]);
     char pos_grw = toupper(pos[3]);
 
+    Walze_conf sb_conf = { .lut = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" };
+    if (sb_lut_gen(&sb_conf, sb_str)) 
+        return 2; 
+
     enigma_init(
         e,
+        &sb_conf,
         w3_conf, w2_conf, w1_conf,
         grw_conf,
         ukw_conf,
@@ -251,4 +246,50 @@ int enigma_init_from_str(Enigma* e, char* str) {
     );
 
     return 0;
+}
+
+// Walzenstellung aktualisieren
+static void update_pos(Enigma* e) {
+    int kerbe_w3 = in_kerbe(&e->w3);
+    int kerbe_w2 = in_kerbe(&e->w2);
+    
+    pos_inc(&e->w3);
+    if (kerbe_w3 || kerbe_w2)
+        pos_inc(&e->w2);
+    if (kerbe_w2)
+        pos_inc(&e->w1);
+}
+
+// Verschlüsselung
+char enigma_encrypt(Enigma* e, char in) {
+    update_pos(e);
+
+    letter_t x = to_letter(in);
+
+#ifdef SHOW_INTERNAL
+    printf("\n%c %c %c | ", 
+        to_char(e->w1.pos), 
+        to_char(e->w2.pos), 
+        to_char(e->w3.pos)
+    );
+#endif
+
+    // Vorwärtspfad
+    x = walze_output_vw(&e->sb, x);
+    x = walze_output_vw(&e->w3, x);
+    x = walze_output_vw(&e->w2, x);
+    x = walze_output_vw(&e->w1, x);
+    x = walze_output_vw(&e->grw, x);
+
+    // UKW
+    x = walze_output_ukw(&e->ukw, x);
+
+    // Rückwärtspfad
+    x = walze_output_rw(&e->grw, x);
+    x = walze_output_rw(&e->w1, x);
+    x = walze_output_rw(&e->w2, x);
+    x = walze_output_rw(&e->w3, x);
+    x = walze_output_rw(&e->sb, x);
+
+    return to_char(x);
 }

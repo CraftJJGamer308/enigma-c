@@ -24,6 +24,7 @@ typedef struct {
 
 // Enigma Datentyp
 typedef struct {
+    Walze sb;
     Walze w3;
     Walze w2;
     Walze w1;
@@ -52,6 +53,7 @@ extern const Walze_conf w_Gamma;
 // Enigma-Initialisierung
 void enigma_init(
     Enigma* e,
+    Walze_conf* sb,
     const Walze_conf* w3, const Walze_conf* w2, const Walze_conf* w1, 
     const Walze_conf* grw,
     const Walze_conf* ukw,
@@ -61,5 +63,5 @@ void enigma_init(
 
 void enigma_print_conf(Enigma* e);
 char enigma_encrypt(Enigma* e, char in);
-int enigma_init_from_str(Enigma* e, char* str);
+int enigma_init_from_str(Enigma* e, char* config, char* sb);
 #endif

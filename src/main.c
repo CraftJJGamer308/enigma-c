@@ -1,55 +1,59 @@
 #include "enigma.h"
 #include "utility.h"
 #include <stdio.h>
+#include <string.h>
 
 int main() {
     //////// Initialisierung ////////
     Enigma e;
+    char config[] = "I-IV-II:Beta:Bruno:VAAA:ANJV";
+    char sb[] = "AT:BL:DF:GJ:HM:NW:OP:QY:RZ:VX";
     
-    // enigma_init(
-    //     &e,
-    //     &w_VI, &w_VII, &w_VIII, // W3, W2, W1
-    //     &w_Beta,                // GrW
-    //     &w_Bruno,               // UKW
-    //     'C', 'D', 'B', 'A',     // ring:       W3, W2, W1, GrW
-    //     'E', 'Q', 'F', 'A'      // init. pos:  W3, W2, W1, GrW
-    // );
+    switch (enigma_init_from_str(&e, config, sb))
+    {
+        case 1:
+            fprintf(stderr, "Ungültige Konfiguration\n");
+            return 1;
+            break;
+        case 2:
+            fprintf(stderr, "Ungültiges Steckbrett\n");
+            return 2;
+            break;
+        default:
+        break;
+    }
     
-    if (enigma_init_from_str(&e, "VIII-VII-VI:Beta:Bruno:CDBA:EQFA")) {
-        fprintf(stderr, "Ungültige Konfiguration\n");
+    FILE *input_file = fopen("./input.txt", "rb");
+    if (!input_file) {
+        fprintf(stderr, "Eingabedatei konnte nicht geöffnet werden\n");
         return 1;
     }
-
+    
     //////// Anfangswalzenkonfigurationen ausgeben ////////
     printf("\nAnfangskonfigurationen\n");
     printf("======================\n");
     enigma_print_conf(&e);
     
-    //////// Text-Eingabe ////////
-    char text[1024]; // Test: VTVGUBFTJVLRUCMPEAAWABQA
-    printf("\nText-Eingabe\n");
-    printf("============\n");
-    
-    printf("Text eingeben:\t");
-    fgets(text, 1024, stdin);
-    clean_string(text);
+    printf("\nVer- und Entschlüsselung\n");
+    printf("========================\n");
 
-    //////// Ergebnis-Ausgabe ////////
-    printf("\nVer- und Entschluesselung\n");
-    printf("=========================\n");
-
-    printf("Eingabe:\t%s\n", text);
-    printf("Ausgabe:\t");
-
-#ifdef SHOW_INTERNAL
-    printf("\n  Pos |   W3   W2   W1   GrW  UKW  GrW  W1   W2   W3  ");
-    printf("\n------------------------------------------------------");
-#endif
-
-    for (char *p = text; *p; p++) {
-        putchar(enigma_encrypt(&e, *p));
+    char text[1024];
+    int char_cnt = 0;
+    while (fread(text, 1, sizeof(text), input_file) > 0) {
+        clean_string(text);
+        for (char *p = text; *p; p++) {
+            char_cnt++;
+            putchar(enigma_encrypt(&e, *p));
+            
+            if (char_cnt % 4 == 0)
+                putchar(' ');
+            if (char_cnt % 40 == 0)
+                putchar('\n');
+        }
+        memset(text, 0, sizeof(text));
     }
-    putchar('\n');
+
+    fclose(input_file);
 
     return 0;
 }
