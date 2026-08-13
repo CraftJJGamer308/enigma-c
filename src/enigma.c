@@ -47,7 +47,7 @@ static inline int in_kerbe(Walze* w) {
     return w->pos == w->kerbe1 || w->pos == w->kerbe2;
 }
 static inline void pos_inc(Walze* w) {
-    w->pos = (w->pos + 1) % 26;
+    w->pos = (w->pos == 25) ? 0 : (w->pos + 1);
 }
 
 // Walzen-Ausgang

@@ -11,5 +11,6 @@ void clean_string(char* str) {
 }
 
 inline int mod_26(int b) {
-    return (b % 26 + 26) % 26;
+    int temp = b % 26;
+    return (temp < 0) ? (temp + 26) : temp;
 }
