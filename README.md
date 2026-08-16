@@ -8,7 +8,7 @@ Datapath: SB -> W3 -> W2 -> W1 -> GrW -> UKW -> GrW -> W1 -> W2 -> W3 -> SB
 
 ## Usage
 
-Enter plaintext at `./input.txt`
+Enter plaintext/ciphertext at `./input.txt`
 
 Set the configuration as strings: 
 ```C
@@ -18,8 +18,15 @@ char sb[] = "AT:BL:DF:GJ:HM:NW:OP:QY:RZ:VX"; // Steckbrett-Paar:...:...
 
 ## Build
 
+Standard Mode:
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Standard
+cmake --build build
+```
+
+Show Internal Mode:
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=ShowInternal
 cmake --build build
 ```
 

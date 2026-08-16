@@ -119,10 +119,10 @@ static void print_conf(Walze* w) {
     }
     
     printf("\t");
-    printf("%c\t", w->ring   != 0xff ? to_char(w->ring)   : ' ');
-    printf("%c\t", w->pos    != 0xff ? to_char(w->pos)    : ' ');
-    printf("%c\t", w->kerbe1 != 0xff ? to_char(w->kerbe1) : ' ');
-    printf("%c\n", w->kerbe2 != 0xff ? to_char(w->kerbe2) : ' ');
+    printf("%c\t", w->ring   != 0xff ? to_char(w->ring)   : '-');
+    printf("%c\t", w->pos    != 0xff ? to_char(w->pos)    : '-');
+    printf("%c\t", w->kerbe1 != 0xff ? to_char(w->kerbe1) : '-');
+    printf("%c\n", w->kerbe2 != 0xff ? to_char(w->kerbe2) : '-');
 }
 
 ///////////// ENIGMA /////////////
@@ -233,7 +233,7 @@ int enigma_init_from_str(Enigma* e, char* config, char* sb_str) {
     char pos_w1  = toupper(pos[2]);
     char pos_grw = toupper(pos[3]);
 
-    Walze_conf sb_conf = { .lut = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" };
+    Walze_conf sb_conf = { .lut = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" , .kerbe1 = 0, .kerbe2 = 0};
     if (sb_lut_gen(&sb_conf, sb_str)) 
         return 2; 
 

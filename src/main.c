@@ -26,7 +26,7 @@ int main() {
     FILE *input_file = fopen("./input.txt", "rb");
     if (!input_file) {
         fprintf(stderr, "Eingabedatei konnte nicht geöffnet werden\n");
-        return 1;
+        return 3;
     }
     
     //////// Anfangswalzenkonfigurationen ausgeben ////////
@@ -38,23 +38,23 @@ int main() {
     printf("========================\n");
 
     char text[1024];
+    int bytes_read;
 
-    #ifdef SHOW_INTERNAL
+#ifdef SHOW_INTERNAL
     printf("\n  Pos |   SB   W3   W2   W1   GrW  UKW  GrW  W1   W2   W3   SB  ");
     printf("\n-----------------------------------------------------------------");
 
-    int bytes_read;
     while ((bytes_read = fread(text, 1, sizeof(text), input_file)) > 0) {
         text[bytes_read] = '\0';
         clean_string(text);
+
         for (char *p = text; *p; p++) {
             putchar(enigma_encrypt(&e, *p));
         }
         memset(text, 0, sizeof(text));
     }
-    #else
+#else
     int char_cnt = 0;
-    int bytes_read;
     while ((bytes_read = fread(text, 1, sizeof(text), input_file)) > 0) {
         text[bytes_read] = '\0';
         clean_string(text);
@@ -70,7 +70,7 @@ int main() {
         }
         memset(text, 0, sizeof(text));
     }
-    #endif
+#endif
 
     fclose(input_file);
 
