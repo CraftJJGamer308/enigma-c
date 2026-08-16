@@ -15,18 +15,18 @@ inline static char to_char(letter_t l) {
 
 ///////////// WALZEN /////////////
 
-const Walze_conf w_I          = { .lut = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .kerbe1 = 'Q' };
-const Walze_conf w_II         = { .lut = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .kerbe1 = 'E' };
-const Walze_conf w_III        = { .lut = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .kerbe1 = 'V' };
-const Walze_conf w_IV         = { .lut = "ESOVPZJAYQUIRHXLNFTGKDCMWB", .kerbe1 = 'J' };
-const Walze_conf w_V          = { .lut = "VZBRGITYUPSDNHLXAWMJQOFECK", .kerbe1 = 'Z' };
+const Walze_conf w_I          = { .lut = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .kerbe1 = 'Q', .kerbe2 = 0 };
+const Walze_conf w_II         = { .lut = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .kerbe1 = 'E', .kerbe2 = 0 };
+const Walze_conf w_III        = { .lut = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .kerbe1 = 'V', .kerbe2 = 0 };
+const Walze_conf w_IV         = { .lut = "ESOVPZJAYQUIRHXLNFTGKDCMWB", .kerbe1 = 'J', .kerbe2 = 0 };
+const Walze_conf w_V          = { .lut = "VZBRGITYUPSDNHLXAWMJQOFECK", .kerbe1 = 'Z', .kerbe2 = 0 };
 const Walze_conf w_VI         = { .lut = "JPGVOUMFYQBENHZRDKASXLICTW", .kerbe1 = 'Z', .kerbe2 = 'M' };
 const Walze_conf w_VII 	      = { .lut = "NZJHGRCXMYSWBOUFAIVLPEKQDT", .kerbe1 = 'Z', .kerbe2 = 'M' };
 const Walze_conf w_VIII 	  = { .lut = "FKQHTLXOCBJSPDZRAMEWNIUYGV", .kerbe1 = 'Z', .kerbe2 = 'M' };
-const Walze_conf w_Bruno      = { .lut = "ENKQAUYWJICOPBLMDXZVFTHRGS" };
-const Walze_conf w_Caesar     = { .lut = "RDOBJNTKVEHMLFCWZAXGYIPSUQ" };
-const Walze_conf w_Beta       = { .lut = "LEYJVCNIXWPBQMDRTAKZGFUHOS" };
-const Walze_conf w_Gamma      = { .lut = "FSOKANUERHMBTIYCWLQPZXVGJD" };
+const Walze_conf w_Bruno      = { .lut = "ENKQAUYWJICOPBLMDXZVFTHRGS", .kerbe1 = 0,   .kerbe2 = 0 };
+const Walze_conf w_Caesar     = { .lut = "RDOBJNTKVEHMLFCWZAXGYIPSUQ", .kerbe1 = 0,   .kerbe2 = 0 };
+const Walze_conf w_Beta       = { .lut = "LEYJVCNIXWPBQMDRTAKZGFUHOS", .kerbe1 = 0,   .kerbe2 = 0 };
+const Walze_conf w_Gamma      = { .lut = "FSOKANUERHMBTIYCWLQPZXVGJD", .kerbe1 = 0,   .kerbe2 = 0 };
 
 // Walzen-Initialisierung
 static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) {
@@ -35,11 +35,12 @@ static void walze_init(Walze* w, const Walze_conf* w_conf, char ring, char pos) 
         w->lut_inv[w->lut[i]] = i; // Walzen-Invertierung
     }
 
-    w->ring = to_letter(ring);
-    w->pos =  to_letter(pos);
+    // 0xff wenn nicht definiert
+    w->ring = ring ? to_letter(ring) : 0xff;
+    w->pos  = pos  ? to_letter(pos)  : 0xff;
 
-    w->kerbe1 = to_letter(w_conf->kerbe1);
-    w->kerbe2 = to_letter(w_conf->kerbe2);
+    w->kerbe1 = w_conf->kerbe1 ? to_letter(w_conf->kerbe1) : 0xff;
+    w->kerbe2 = w_conf->kerbe2 ? to_letter(w_conf->kerbe2) : 0xff;
 }
 
 // Steckbrett-Generierung
@@ -116,11 +117,12 @@ static void print_conf(Walze* w) {
         putchar(to_char(*p));
         p++;
     }
-  
-    printf("\t%c\t", to_char(w->ring));
-    printf("%c\t",   to_char(w->pos));
-    printf("%c\t",   to_char(w->kerbe1));
-    printf("%c\n",   to_char(w->kerbe2));
+    
+    printf("\t");
+    printf("%c\t", w->ring   != 0xff ? to_char(w->ring)   : ' ');
+    printf("%c\t", w->pos    != 0xff ? to_char(w->pos)    : ' ');
+    printf("%c\t", w->kerbe1 != 0xff ? to_char(w->kerbe1) : ' ');
+    printf("%c\n", w->kerbe2 != 0xff ? to_char(w->kerbe2) : ' ');
 }
 
 ///////////// ENIGMA /////////////
